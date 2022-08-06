@@ -9,4 +9,4 @@ Standalone Python Webserver for BlueMap, a Minecraft Server plugin.
 4. Start the server
 
 # Note
-You will still need to route your webroot and `/live/` paths externally. The purpose of this server is to handle retrieving tile data from a BlueMap SQL database.
+You will still need to route your webroot and `/live/` paths externally. The purpose of this server is to handle retrieving tile data from a BlueMap SQL database and is intended to sit behind a reverse proxy such as nginx.
