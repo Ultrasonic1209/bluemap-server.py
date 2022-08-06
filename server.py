@@ -1,22 +1,57 @@
+"""
+By Ultrasonic1209
+I have no clue what I'm doing
+"""
+
 import gzip
 from contextvars import ContextVar
 from io import BytesIO
+from typing import TypedDict
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.orm import sessionmaker
 
-import sanic
+import sanic, toml
 from sanic.response import json
 
 from models import Base, Map, MapMeta, MapTile, MapTileType
 
+class ConfigSql(TypedDict):
+    database_url: str
+
+class ConfigServer(TypedDict):
+    bind: str
+    port: int
+    access_log: bool
+    threads: int
+    forwarded_secret: str
+
+class Config(TypedDict):
+    sql: ConfigSql
+    server: ConfigServer
+
 app = sanic.Sanic("bluemap-server")
 
+with open('config.toml', 'r') as f:
+    extconfig: Config = toml.load(f)
+
+dburl = extconfig["sql"]["database_url"]
+
+serverbind = extconfig["server"]["bind"]
+serverport = extconfig["server"]["port"]
+accesslog = extconfig["server"]["access_log"]
+threads = extconfig["server"]["threads"]
+secret = extconfig["server"]["forwarded_secret"]
+
+app.config.ACCESS_LOG = accesslog
+
+if secret != "":
+    app.config.FORWARDED_SECRET = secret
+
 bind = create_async_engine(
-    f"mysql+asyncmy://bluemap:iDislikeLife@server.ultras-playroom.xyz/bluemap",
-    echo=True,
+    dburl,
     pool_pre_ping=True,
 )
 
@@ -178,4 +213,7 @@ async def get_tile(request: sanic.Request, world: str, maptype: str, params: str
 
 
 if __name__ == "__main__":
-    app.run(fast=True, dev=True)
+    if threads <= 0:
+        app.run(host=serverbind, port=serverport, fast=True)
+    else:
+        app.run(host=serverbind, port=serverport, workers=threads)

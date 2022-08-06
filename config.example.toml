@@ -1,0 +1,18 @@
+
+# for more info on database_url,
+# https://docs.sqlalchemy.org/en/14/dialects/mysql.html
+[sql]
+
+database_url = "mysql+asyncmy://username:password@host/dbname"
+
+[server]
+
+bind = "0.0.0.0"
+port = 8000
+access_log = false
+
+# set threads to -1 to use all available threads
+threads = -1
+
+# https://sanic.dev/en/guide/deployment/nginx.html#proxied-sanic-app
+forwarded_secret = ""
