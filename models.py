@@ -15,7 +15,7 @@ class Map(Base):
     __tablename__ = 'bluemap_map'
 
     id = Column(SMALLINT(unsigned=True), primary_key=True, nullable=False, autoincrement=True)
-    map_id = Column(VARCHAR(255), unique=True, nullable=False)
+    map_id = Column(VARCHAR(255), unique=True, nullable=False, index=True)
 
 class MapMeta(Base):
     __tablename__ = 'bluemap_map_meta'
@@ -39,11 +39,11 @@ class MapTileCompression(Base):
     __tablename__ = 'bluemap_map_tile_compression'
 
     id = Column(SMALLINT(unsigned=True), primary_key=True, nullable=False, autoincrement=True)
-    compression = Column(VARCHAR(255), nullable=False, unique=True)
+    compression = Column(VARCHAR(255), nullable=False, unique=True, index=True)
 
 class MapTileType(Base):
     __tablename__ = 'bluemap_map_tile_type'
 
     id = Column(SMALLINT(unsigned=True), primary_key=True, nullable=False, autoincrement=True)
-    type = Column(VARCHAR(255), nullable=False, unique=True)
+    type = Column(VARCHAR(255), nullable=False, unique=True, index=True)
 
