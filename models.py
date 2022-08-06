@@ -9,7 +9,7 @@ class StorageMeta(Base):
     __tablename__ = "bluemap_storage_meta"
 
     key = Column(VARCHAR(255), primary_key=True, nullable=False)
-    value = Column(VARCHAR(255), nullable=True, server_default=null)
+    value = Column(VARCHAR(255), nullable=True, default=null)
 
 class Map(Base):
     __tablename__ = 'bluemap_map'
@@ -32,7 +32,7 @@ class MapTile(Base):
     x = Column(INTEGER(11), nullable=False, primary_key=True)
     z = Column(INTEGER(11), nullable=False, primary_key=True)
     compression = Column(SMALLINT(5, unsigned=True), ForeignKey('bluemap_map_tile_compression.id'), nullable=False)
-    changed = Column(TIMESTAMP(), nullable=False, server_default=func.now(), onupdate=func.now())
+    changed = Column(TIMESTAMP(), nullable=False, server_default=func.now(), server_onupdate=func.now())
     data = Column(LONGBLOB(), nullable=False)
 
 class MapTileCompression(Base):
