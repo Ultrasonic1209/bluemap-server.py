@@ -1,5 +1,5 @@
 # bluemap-server.py
-Standalone Python Webserver for BlueMap, a Minecraft Server plugin.
+Standalone Python Webserver for [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap), a Minecraft Server plugin.
 **This project is not affiliated with BlueMap.**
 
 ## How to use
