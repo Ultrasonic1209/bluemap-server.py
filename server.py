@@ -16,7 +16,7 @@ from sqlalchemy.orm import sessionmaker
 import sanic, toml
 from sanic.response import json
 
-from models import Base, Map, MapMeta, MapTile, MapTileType
+from models import Map, MapMeta, MapTile, Map
 
 class ConfigSql(TypedDict):
     database_url: str
@@ -95,11 +95,7 @@ async def get_render_state(request: sanic.Request, world: str):
             return json({})
 
     response = sanic.HTTPResponse()
-    buffer = BytesIO()
-    gz = gzip.GzipFile(mode="wb", fileobj=buffer)
-    gz.write(meta.value)
-    gz.close()
-    response.body = buffer.getvalue()
+    response.body = meta.value
     response.headers["content-type"] = "application/octet-stream"
     response.headers["content-encoding"] = "gzip"
     response.headers["vary"] = "Accept-Encoding"
@@ -130,19 +126,15 @@ async def get_meta(request: sanic.Request, world: str, reqmeta: str, ext: str):
             return json({})
 
     response = sanic.HTTPResponse()
-    buffer = BytesIO()
-    gz = gzip.GzipFile(mode="wb", fileobj=buffer)
-    gz.write(meta.value)
-    gz.close()
-    response.body = buffer.getvalue()
+    response.body = meta.value
     response.headers["content-type"] = "application/json"
     response.headers["content-encoding"] = "gzip"
     response.headers["vary"] = "Accept-Encoding"
     
     return response
 
-@app.get("/maps/<world:str>/<maptype:str>/<params:path>")
-async def get_tile(request: sanic.Request, world: str, maptype: str, params: str):
+@app.get("/maps/<world:str>/tiles/<lod:int>/<params:path>")
+async def get_tile(request: sanic.Request, world: str, lod: int, params: str):
     session: AsyncSession = request.ctx.session
 
     parsedparams = params.split("/")
@@ -184,18 +176,9 @@ async def get_tile(request: sanic.Request, world: str, maptype: str, params: str
         if map is None:
             return json({})
 
-        getTypeStmt = select(MapTileType).where(MapTileType.type == maptype)
-        getTypeRes: Result = await session.execute(getTypeStmt)
-        getTypeRow = getTypeRes.first()
-        
-        maptiletype: MapTileType = getTypeRow["MapTileType"]
-
-        if maptiletype is None:
-            return json({})
-
         maptile: MapTile = await session.get(MapTile, {
             "map": map.id,
-            "type": maptiletype.id,
+            "lod": lod,
             "x": int(x),
             "z": int(z),
         })
@@ -214,6 +197,6 @@ async def get_tile(request: sanic.Request, world: str, maptype: str, params: str
 
 if __name__ == "__main__":
     if threads <= 0:
-        app.run(host=serverbind, port=serverport, fast=True)
+        app.run(host=serverbind, port=serverport, fast=True, dev=True)
     else:
         app.run(host=serverbind, port=serverport, workers=threads)

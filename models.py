@@ -28,7 +28,7 @@ class MapTile(Base):
     __tablename__= 'bluemap_map_tile'
 
     map = Column(SMALLINT(unsigned=True), ForeignKey('bluemap_map.id'), primary_key=True, nullable=False)
-    type = Column(SMALLINT(unsigned=True), ForeignKey('bluemap_map_tile_type.id'), primary_key=True, nullable=False)
+    lod = Column(SMALLINT(unsigned=True), primary_key=True, nullable=False)
     x = Column(INTEGER(), nullable=False, primary_key=True)
     z = Column(INTEGER(), nullable=False, primary_key=True)
     compression = Column(SMALLINT(unsigned=True), ForeignKey('bluemap_map_tile_compression.id'), nullable=False)
@@ -40,10 +40,3 @@ class MapTileCompression(Base):
 
     id = Column(SMALLINT(unsigned=True), primary_key=True, nullable=False, autoincrement=True)
     compression = Column(VARCHAR(255), nullable=False, unique=True, index=True)
-
-class MapTileType(Base):
-    __tablename__ = 'bluemap_map_tile_type'
-
-    id = Column(SMALLINT(unsigned=True), primary_key=True, nullable=False, autoincrement=True)
-    type = Column(VARCHAR(255), nullable=False, unique=True, index=True)
-
