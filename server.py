@@ -197,6 +197,6 @@ async def get_tile(request: sanic.Request, world: str, lod: int, params: str):
 
 if __name__ == "__main__":
     if threads <= 0:
-        app.run(host=serverbind, port=serverport, fast=True, dev=True)
+        app.run(host=serverbind, port=serverport, fast=True)
     else:
         app.run(host=serverbind, port=serverport, workers=threads)
