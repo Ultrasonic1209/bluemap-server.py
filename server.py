@@ -4,7 +4,6 @@ I have no clue what I'm doing
 """
 
 import gzip
-from contextvars import ContextVar
 from io import BytesIO
 from typing import TypedDict
 
@@ -58,19 +57,16 @@ bind = create_async_engine(
 # https://stackoverflow.com/a/70390426/4784039
 is_numeric = lambda x: x.replace('.', '', 1).replace('-', '', 1).isdigit()
 
-_base_model_session_ctx = ContextVar("session")
+_sessionmaker = sessionmaker(bind, AsyncSession, expire_on_commit=False)
 
 @app.middleware("request")
 async def inject_session(request):
-    request.ctx.session = sessionmaker(bind, AsyncSession, expire_on_commit=False)()
-    request.ctx.session_ctx_token = _base_model_session_ctx.set(request.ctx.session)
-
+    request.ctx.session = _sessionmaker()
 
 @app.middleware("response")
 async def close_session(request, response):
-    if hasattr(request.ctx, "session_ctx_token"):
-        _base_model_session_ctx.reset(request.ctx.session_ctx_token)
-        await request.ctx.session.close()
+    if session := getattr(request.ctx, "session"):
+        await session.close()
 
 @app.get("/maps/<world:str>/.rstate")
 async def get_render_state(request: sanic.Request, world: str):
